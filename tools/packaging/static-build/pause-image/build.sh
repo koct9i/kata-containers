@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+[ -z "${DEBUG}" ] || set -x
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -28,7 +29,7 @@ package_output_dir="${package_output_dir:-}"
 container_image="${PAUSE_IMAGE_CONTAINER_BUILDER:-$(get_pause_image_name)}"
 [ "${CROSS_BUILD}" == "true" ] && container_image="${container_image}-cross-build"
 
-docker pull ${container_image} || \
+pull_from_registry ${container_image} || \
 	(docker $BUILDX build $PLATFORM \
 		-t "${container_image}" "${script_dir}" && \
 	 # No-op unless PUSH_TO_REGISTRY is exported as "yes"
@@ -36,6 +37,7 @@ docker pull ${container_image} || \
 
 docker run --rm -i -v "${repo_root_dir}:${repo_root_dir}" \
 	-w "${PWD}" \
+	--env DEBUG="${DEBUG:-}" \
 	--env DESTDIR="${DESTDIR}" \
 	--env pause_image_repo="${pause_image_repo}" \
 	--env pause_image_version="${pause_image_version}" \

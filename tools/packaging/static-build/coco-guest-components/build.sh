@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+[ -z "${DEBUG}" ] || set -x
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -31,7 +32,7 @@ package_output_dir="${package_output_dir:-}"
 container_image="${COCO_GUEST_COMPONENTS_CONTAINER_BUILDER:-$(get_coco_guest_components_image_name)}"
 [ "${CROSS_BUILD}" == "true" ] && container_image="${container_image}-cross-build"
 
-docker pull ${container_image} || \
+pull_from_registry ${container_image} || \
 	(docker $BUILDX build $PLATFORM \
 	    	--build-arg RUST_TOOLCHAIN="${coco_guest_components_toolchain}" \
 		-t "${container_image}" "${script_dir}" && \
@@ -51,6 +52,7 @@ esac
 
 docker run --rm -i -v "${repo_root_dir}:${repo_root_dir}" \
 	-w "${PWD}" \
+	--env DEBUG="${DEBUG:-}" \
 	--env DESTDIR="${DESTDIR}" \
 	--env TEE_PLATFORM=${TEE_PLATFORM:+"all"} \
 	--env RESOURCE_PROVIDER=${RESOURCE_PROVIDER:-} \
