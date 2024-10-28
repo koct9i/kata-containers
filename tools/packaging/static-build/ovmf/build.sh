@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+[ -z "${DEBUG}" ] || set -x
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -47,13 +48,14 @@ fi
 [ -n "$ovmf_package" ] || die "failed to get ovmf package or commit"
 [ -n "$package_output_dir" ] || die "failed to get ovmf package or commit"
 
-docker pull ${container_image} || \
+pull_from_registry ${container_image} || \
 	(docker build -t "${container_image}" "${script_dir}" && \
 	# No-op unless PUSH_TO_REGISTRY is exported as "yes"
 	push_to_registry "${container_image}")
 
 docker run --rm -i -v "${repo_root_dir}:${repo_root_dir}" \
 	-w "${PWD}" \
+	--env DEBUG="${DEBUG:-}" \
 	--env DESTDIR="${DESTDIR}" --env PREFIX="${PREFIX}" \
 	--env ovmf_build="${ovmf_build}" \
 	--env ovmf_repo="${ovmf_repo}" \

@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+[ -z "${DEBUG}" ] || set -x
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -34,7 +35,7 @@ package_output_dir="${package_output_dir:-}"
 
 container_image="${BUILDER_REGISTRY}:initramfs-cryptsetup-${cryptsetup_version}-lvm2-${lvm2_version}-$(get_last_modification ${repo_root_dir} ${script_dir})-$(uname -m)"
 
-docker pull ${container_image} || (docker build \
+pull_from_registry ${container_image} || (docker build \
 	--build-arg cryptsetup_repo="${cryptsetup_repo}" \
 	--build-arg cryptsetup_version="${cryptsetup_version}" \
 	--build-arg lvm2_repo="${lvm2_repo}" \
@@ -45,5 +46,6 @@ docker pull ${container_image} || (docker build \
 
 docker run --rm -i -v "${repo_root_dir}:${repo_root_dir}" \
 	-w "${PWD}" \
+	--env DEBUG="${DEBUG:-}" \
 	"${container_image}" \
 	bash -c "${initramfs_builder} ${default_install_dir}"

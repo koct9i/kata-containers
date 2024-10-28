@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+[ -z "${DEBUG}" ] || set -x
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -47,7 +48,7 @@ CACHE_TIMEOUT=$(date +"%Y-%m-%d")
 container_image="${QEMU_CONTAINER_BUILDER:-$(get_qemu_image_name)}"
 [ "${CROSS_BUILD}" == "true" ] && container_image="${container_image}-cross-build"
 
-${container_engine} pull ${container_image} || ("${container_engine}" build \
+[ "${USE_CACHE:-"yes"}" != "yes" ] && ${container_engine} pull ${container_image} || ("${container_engine}" build \
 	--build-arg CACHE_TIMEOUT="${CACHE_TIMEOUT}" \
 	--build-arg http_proxy="${http_proxy}" \
 	--build-arg https_proxy="${https_proxy}" \
@@ -62,6 +63,7 @@ ${container_engine} pull ${container_image} || ("${container_engine}" build \
 "${container_engine}" run \
 	--rm \
 	-i \
+	--env DEBUG="${DEBUG:-}" \
 	--env BUILD_SUFFIX="${build_suffix}" \
 	--env PKGVERSION="${PKGVERSION}" \
 	--env QEMU_DESTDIR="${qemu_destdir}" \
