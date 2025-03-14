@@ -20,10 +20,8 @@ endif
 ifeq ($(ARCH), x86_64)
 BASE_TARBALLS = \
 	firecracker-tarball \
-	kernel-confidential-tarball \
 	kernel-dragonball-experimental-tarball \
 	kernel-nvidia-gpu-tarball \
-	kernel-nvidia-gpu-confidential-tarball \
 	kernel-tarball \
 	nydus-tarball \
 	ovmf-sev-tarball \
@@ -34,8 +32,6 @@ BASE_TARBALLS = \
 	shim-v2-tarball \
 	virtiofsd-tarball
 BASE_SERIAL_TARBALLS = rootfs-image-tarball \
-	rootfs-image-confidential-tarball \
-	rootfs-initrd-confidential-tarball \
 	rootfs-initrd-mariner-tarball \
 	rootfs-initrd-tarball \
 	cloud-hypervisor-tarball \
