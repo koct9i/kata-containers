@@ -321,7 +321,7 @@ setup_loop_device() {
 
 	# Get the loop device bound to the image file (requires /dev mounted in the
 	# image build system and root privileges)
-	device=$(losetup -P -f --show "${image}")
+	device=$(losetup -P -f --show "${image}") || die "Could not setup loop device"
 
 	#Refresh partition table
 	partprobe -s "${device}" > /dev/null
@@ -335,6 +335,7 @@ setup_loop_device() {
 	done
 
 	error "File ${device}p1 is not a block device"
+	losetup -d "${device}" || true
 	return 1
 }
 
